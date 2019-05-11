@@ -1,0 +1,98 @@
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+public class Solution {
+    static int[] rustMurderer(int n, int[][] edges, int s) {
+        int graph[][] = new int[n+1][n+1];
+        for(int i = 0; i <= n; i++)
+            for(int j = 0; j <= n; j++)
+                graph[i][j] = 1;
+        for(int i = 0; i < edges.length; i++){
+            int src = edges[i][0];
+            int dest = edges[i][1];
+            graph[src][dest] = 0;
+            graph[dest][src] = 0;
+        }
+        boolean visited[] = new boolean[n+1];
+        int dist[] = new int[n+1];
+        for(int i = 0; i <= n; i++)
+            dist[i] = Integer.MAX_VALUE;
+        dist[s] = 0;
+        int res[] = new int[n-1];
+        // algo
+        for(int i = 0; i < n-1; i++){
+            // pick min
+            int min = Integer.MAX_VALUE;
+            int minInd = 0;
+            for(int j = 1; j <= n; j++){
+                if( !visited[j] && min > dist[j]){
+                    min = dist[j];
+                    minInd = j;
+                }    
+            }
+            // set dist
+            visited[minInd] = true;
+            for(int k = 1; k <= n; k++) {
+                if(!visited[k]&& graph[minInd][k]>0 && (dist[minInd] + graph[minInd][k] < dist[k] ))
+                    dist[k] = dist[minInd] + graph[minInd][k];
+            }
+        }
+        int ind = 0;
+        for(int i = 1; i <= n; i++){
+            if(i!=s){
+                if(dist[i]==Integer.MAX_VALUE)
+                    res[ind++] = -1;
+                else
+                    res[ind++] = dist[i];
+            }
+        }
+        return res;
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int t = Integer.parseInt(scanner.nextLine().trim());
+
+        for (int tItr = 0; tItr < t; tItr++) {
+            String[] nm = scanner.nextLine().split(" ");
+
+            int n = Integer.parseInt(nm[0].trim());
+
+            int m = Integer.parseInt(nm[1].trim());
+
+            int[][] roads = new int[m][2];
+
+            for (int roadsRowItr = 0; roadsRowItr < m; roadsRowItr++) {
+                String[] roadsRowItems = scanner.nextLine().split(" ");
+
+                for (int roadsColumnItr = 0; roadsColumnItr < 2; roadsColumnItr++) {
+                    int roadsItem = Integer.parseInt(roadsRowItems[roadsColumnItr].trim());
+                    roads[roadsRowItr][roadsColumnItr] = roadsItem;
+                }
+            }
+
+            int s = Integer.parseInt(scanner.nextLine().trim());
+
+            int[] result = rustMurderer(n, roads, s);
+
+            for (int resultItr = 0; resultItr < result.length; resultItr++) {
+                bufferedWriter.write(String.valueOf(result[resultItr]));
+
+                if (resultItr != result.length - 1) {
+                    bufferedWriter.write(" ");
+                }
+            }
+
+            bufferedWriter.newLine();
+        }
+
+        bufferedWriter.close();
+    }
+}
+
